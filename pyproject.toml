@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "wfudptools"
+version = "5.0.0"
+description = "listener/reporter and simulator for WeatherFlow UDP API"
+authors = ["Vince Skahan <vinceskahan@gmail.com>"]
+readme = "README.md"
+
+#packages = [
+    #{ include = "listener.py", from = "wfudptools" },
+    #{ include = "simulator.py", from = "wfudptools" },
+#]
+
+[tool.poetry.scripts]
+wfudplistener  = 'wfudptools.listener:main'
+wfudpsimulator = 'wfudptools.simulator:main'
+
+[tool.poetry.dependencies]
+python = "^3.10"
+influxdb = "5.3.1"
+paho-mqtt = "1.6.1"
+certifi = "2022.12.7"
+charset-normalizer = "3.0.1"
+idna = "3.4"
+six = "1.16.0"
+urllib3 = "1.26.14"
+msgpack = "1.0.4"
+python-dateutil = "2.8.2"
+pytz = "2022.7.1"
+requests = "2.28.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
