@@ -1,21 +1,30 @@
 [tool.poetry]
 name = "wfudptools"
-version = "5.0.0"
-description = "listener/reporter and simulator for WeatherFlow UDP API"
+version = "5.0.1.b1"
+description = "WeatherFlow UDP API compliant python tools"
 authors = ["Vince Skahan <vinceskahan@gmail.com>"]
-readme = "README.md"
-
-#packages = [
-    #{ include = "listener.py", from = "wfudptools" },
-    #{ include = "simulator.py", from = "wfudptools" },
-#]
-
-[tool.poetry.scripts]
-wfudplistener  = 'wfudptools.listener:main'
-wfudpsimulator = 'wfudptools.simulator:main'
+license = "GPL3"
+readme = "README-pypi.md"
+homepage = "https://github.com/vinceskahan/wfudptools"
+repository = "https://github.com/vinceskahan/wfudptools"
+classifiers = [
+    'Development Status :: 5 - Production/Stable',
+    'Intended Audience :: End Users/Desktop',
+    'Intended Audience :: Science/Research',
+    'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+     'Topic :: Scientific/Engineering :: Physics'
+]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.7"
 influxdb = "5.3.1"
 paho-mqtt = "1.6.1"
 certifi = "2022.12.7"
@@ -27,6 +36,10 @@ msgpack = "1.0.4"
 python-dateutil = "2.8.2"
 pytz = "2022.7.1"
 requests = "2.28.2"
+
+[tool.poetry.scripts]
+wfudplistener  = 'wfudptools.listener:main'
+wfudpsimulator = 'wfudptools.simulator:main'
 
 [build-system]
 requires = ["poetry-core"]

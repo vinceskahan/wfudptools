@@ -2,7 +2,7 @@
 
 These python3 utilities let you test (and simulate) a WeatherFlow station installation
 
-It permits you to listen to UDP broadcasts from your HUb and:
+These permit you to listen to UDP broadcasts from your Hub and:
  * print the received UDP broadcasts to stdout
  * print the decoded broadcasts in a more human-friendly form
  * publish derived topics to MQTT
@@ -10,9 +10,9 @@ It permits you to listen to UDP broadcasts from your HUb and:
  * support any combination of Air/Sky/Tempest
  * support multiple instances of Air/Sky/Tempest at your site
 
-It also provides a utility to permit you to simulate a WeatherFlow Hub with minimal test data.
+They also provide a utility to permit you to simulate a WeatherFlow Hub with minimal test data.
 
-NOTE - This is tested using v119 of the WeatherFlow hub firmware.
+NOTE - These utilities are tested using v119 of the WeatherFlow hub firmware.
 
 ### IMPORTANT SUPPORT INFORMATION
 
