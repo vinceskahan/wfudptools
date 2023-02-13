@@ -25,12 +25,13 @@
 
 """
 
-usage: python3 listener.py [-h] [-r] [-d] [-s] [-l LIMIT] [-x EXCLUDE] [-i] [-m] [-n]
+usage: python3 listener.py [-h] [-r] [-q] [-d] [-s] [-l LIMIT] [-x EXCLUDE] [-i] [-m] [-n]
                  [-w] [-b MQTT_BROKER] [-t MQTT_TOPIC]
 
 optional arguments:
   -h, --help            show this help message and exit
   -r, --raw             print raw data to stddout
+  -q, --quiet           print only the JSON to stdout (requires -r)
   -d, --decoded         print decoded data to stdout
   -s, --syslog          syslog unexpected data received
   -l LIMIT, --limit LIMIT
@@ -599,7 +600,10 @@ def print_raw(data,args):
                 print ("")
                 print (json.dumps(data,sort_keys=True,indent=2));
             else:
-                print ("    raw data: ", json.dumps(data,sort_keys=True));
+                if args.quiet:
+                    print (json.dumps(data,sort_keys=True));
+                else:
+                    print ("    raw data: ", json.dumps(data,sort_keys=True));
             next
 
 #---------
@@ -654,6 +658,7 @@ for --limit, possibilities are:
     )
 
     parser.add_argument("-r", "--raw",     dest="raw",     action="store_true", help="print raw data to stddout")
+    parser.add_argument("-q", "--quiet",   dest="quiet",   action="store_true", help="print only the JSON to stdout (requires -r)")
     parser.add_argument("-d", "--decoded", dest="decoded", action="store_true", help="print decoded data to stdout")
     parser.add_argument("-s", "--syslog",  dest="syslog",  action="store_true", help="syslog unexpected data received")
     parser.add_argument("-l", "--limit",   dest="limit",   action="store",      help="limit obs type(s) processed")
@@ -710,16 +715,17 @@ for --limit, possibilities are:
     else:
         ADDRESS = ''
 
-    print ("setting up socket - ", end='')
+    if not args.quiet:
+        print ("setting up socket - ", end='')
     s = socket(AF_INET, SOCK_DGRAM)
     s.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
     s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
     s.bind((ADDRESS, MYPORT))
-    print ("done")
-
-    print ("listening for broadcasts..")
-    if args.syslog:
-        loginf("starting to process messages")
+    if not args.quiet:
+        print ("done")
+        print ("listening for broadcasts..")
+        if args.syslog:
+            loginf("starting to process messages")
 
     while 1:
 
