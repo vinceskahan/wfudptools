@@ -805,10 +805,10 @@ for --limit, possibilities are:
         print ()
         sys.exit(1)
 
-    if (not args.mqtt) and (not args.decoded) and (not args.raw) and (not args.influxdb):
+    if (not args.mqtt) and (not args.decoded) and (not args.raw) and (not args.influxdb) and (not args.influxdb2):
         print ("\n#")
         print ("# exiting - must specify at least one option")
-        print ("#           --raw, --decoded, --mqtt, --influxdb")
+        print ("#           --raw, --decoded, --mqtt, --influxdb, --influxdb2")
         print ("#\n")
         parser.print_usage()
         print ()
