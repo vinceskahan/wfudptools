@@ -59,6 +59,16 @@ optional arguments:
                         InfluxDb password
   --influxdb_db INFLUXDB_DB
                         InfluxDb database name
+  --influxdb2           publish to InfluxDB v2
+  --influxdb2_url INFLUXDB2_URL
+                        InfluxDB v2 HTTP API root URL
+  --influxdb2_org INFLUXDB2_ORG
+                        InfluxDB v2 Organization
+  --influxdb2_bucket INFLUXDB2_BUCKET
+                        InfluxDB v2 Bucket
+  --influxdb2_token INFLUXDB2_TOKEN
+                        InfluxDB v2 Token
+  --influxdb2_debug     Debug InfluxDB v2 publisher
   --mqtt_user MQTT_USER
                         MQTT username (if needed)
   --mqtt_pass MQTT_PASS
@@ -159,6 +169,12 @@ def process_evt_precip(data,args):
 
     if args.influxdb:
         influxdb_publish(topic, evt_precip)
+        
+    if args.influxdb2:
+        influxdb2_publish(topic, evt_precip)
+        
+    if args.verbose:
+        print("finished publishing %s" % topic)
 
     return data
 
@@ -192,6 +208,12 @@ def process_evt_strike(data,args):
 
     if args.influxdb:
         influxdb_publish(topic, evt_strike)
+        
+    if args.influxdb2:
+        influxdb2_publish(topic, evt_strike)
+    
+    if args.verbose:
+        print("finished publishing %s" % topic)
 
     return data
 
@@ -225,6 +247,12 @@ def process_rapid_wind(data,args):
 
     if args.influxdb:
         influxdb_publish(topic, rapid_wind)
+            
+    if args.influxdb2:
+        influxdb2_publish(topic, rapid_wind)
+    
+    if args.verbose:
+        print("finished publishing %s" % topic)
 
     return data
 
@@ -267,6 +295,12 @@ def process_obs_air(data,args):
 
     if args.influxdb:
         influxdb_publish(topic, obs_air)
+        
+    if args.influxdb2:
+        influxdb2_publish(topic, obs_air)
+    
+    if args.verbose:
+        print("finished publishing %s" % topic)
 
     return data
 
@@ -332,6 +366,12 @@ def process_obs_st(data,args):
 
     if args.influxdb:
         influxdb_publish(topic, obs_st)
+        
+    if args.influxdb2:
+        influxdb2_publish(topic, obs_st)
+    
+    if args.verbose:
+        print("finished publishing %s" % topic)
 
     return data
 
@@ -385,6 +425,12 @@ def process_obs_sky(data,args):
 
     if args.influxdb:
         influxdb_publish(topic, obs_sky)
+        
+    if args.influxdb2:
+        influxdb2_publish(topic, obs_sky)
+    
+    if args.verbose:
+        print("finished publishing %s" % topic)
 
     return data
 
@@ -473,6 +519,12 @@ def process_device_status(data,args):
 
     if args.influxdb:
         influxdb_publish('device_status', device_status)
+        
+    if args.influxdb2:
+        influxdb2_publish('device_status', device_status)
+    
+    if args.verbose:
+        print("finished publishing %s" % topic)
 
     return data
 
@@ -525,6 +577,12 @@ def process_hub_status(data,args):
 
     if args.influxdb:
         influxdb_publish(topic, hub_status)     # careful here, might need to hub_status.pop("foo", None) for arrays
+        
+    if args.influxdb2:
+        influxdb2_publish(topic, hub_status)     # careful here, might need to hub_status.pop("foo", None) for arrays
+    
+    if args.verbose:
+        print("finished publishing %s" % topic)
 
     return data
 
@@ -554,6 +612,51 @@ def influxdb_publish(event, data):
     except Exception as e:
         print("Failed to connect to InfluxDB: %s" % e)
         print("  Payload was: %s" % payload)
+
+#----------------
+
+def influxdb2_publish(event, data):
+    print("in influxdb2_publish")
+    # influxdb_client supports InfluxDB backends 1.8/2.0+ - v1.8 includes a v2 API layer.
+    from influxdb_client import InfluxDBClient, Point, WritePrecision
+    from influxdb_client.client.write_api import SYNCHRONOUS
+    print("done importing client")
+
+    if 'influxdb_client' not in sys.module:
+        print("you haven not imported influxdb_client succcessfully")
+    else:
+        print("looks like influxdb_client is available")
+    
+    try:
+        print("in try to make client")
+        client = InfluxDBClient(url=args.influxdb2_url,
+                                    token=args.influxdb2_token,
+                                    org=args.influxdb2_org,
+                                    debug=args.influxdb2_debug)
+        print("creating point")
+        # WritePrecision.S necessary since we are using the report's timestamp, which is epoch in seconds.
+        point = Point(event).tag("source", "weatherflow-udp-listener").time(data['timestamp'], WritePrecision.S)
+        
+        print("preparing to iterate over data keys")
+        # add all keys / values to data point
+        for key in data.keys():
+            point.field(key, data[key])
+            if args.influxdb2_debug:
+                print("added field %s : %s" % (key, data[key]))
+       
+
+        if args.influxdb2_debug or args.verbose:
+            print("publishing event %s to influxdb" % (event))
+        
+        # write to API
+        print("creating write api")
+        write_api = client.write_api(write_options=SYNCHRONOUS)
+        print("write api created")
+        write_api.write(bucket=args.influxdb2_bucket, record=point)
+        print("successfully wrote to InfluxDB")
+
+    except Exception as e:
+        print("Failed to connect to InfluxDB: %s" % e)
 
 #----------------
 
