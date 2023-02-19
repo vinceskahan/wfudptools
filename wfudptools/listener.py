@@ -622,7 +622,7 @@ def influxdb2_publish(event, data):
     from influxdb_client.client.write_api import SYNCHRONOUS
     print("done importing client")
 
-    if 'influxdb_client' not in sys.module:
+    if 'influxdb_client' not in sys.modules:
         print("you haven not imported influxdb_client succcessfully")
     else:
         print("looks like influxdb_client is available")
