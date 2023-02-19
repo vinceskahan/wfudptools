@@ -784,6 +784,13 @@ for --limit, possibilities are:
     parser.add_argument("--influxdb_user", dest="influxdb_user", action="store",                                      help="InfluxDB username")
     parser.add_argument("--influxdb_pass", dest="influxdb_pass", action="store",                                      help="InfluxDB password")
     parser.add_argument("--influxdb_db",   dest="influxdb_db",   action="store",      default="smartweather",         help="InfluxDB database name")
+    
+    parser.add_argument("--influxdb2",        dest="influxdb2",    action="store_true", help="publish to InfluxDB v2")
+    parser.add_argument("--influxdb2_url",    dest="influxdb2_url",    action="store", help="InfluxDB v2 HTTP API root URL", default="http://localhost:8086/")
+    parser.add_argument("--influxdb2_org",    dest="influxdb2_org", action="store", help="InfluxDB v2 Organization")
+    parser.add_argument("--influxdb2_bucket", dest="influxdb2_bucket", action="store", help="InfluxDB v2 Bucket")
+    parser.add_argument("--influxdb2_token", dest="influxdb2_token", action="store", help="InfluxDB v2 Token")
+    parser.add_argument("--influxdb2_debug", dest="influxdb2_debug", action="store_true", help="Debug InfluxDB v2 publisher")
 
     parser.add_argument("--mqtt_user", dest="mqtt_user", action="store", help="MQTT username (if needed)")
     parser.add_argument("--mqtt_pass", dest="mqtt_pass", action="store", help="MQTT password (if MQTT_USER has a password)")
