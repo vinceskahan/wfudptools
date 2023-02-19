@@ -617,6 +617,7 @@ def influxdb_publish(event, data):
 
 def influxdb2_publish(event, data):
     print("in influxdb2_publish")
+    print(f'args: {args}')
     # influxdb_client supports InfluxDB backends 1.8/2.0+ - v1.8 includes a v2 API layer.
     from influxdb_client import InfluxDBClient, Point, WritePrecision
     from influxdb_client.client.write_api import SYNCHRONOUS
