@@ -619,43 +619,36 @@ def influxdb2_publish(event, data, args):
     # influxdb_client supports InfluxDB backends 1.8/2.0+ - v1.8 includes a v2 API layer.
     from influxdb_client import InfluxDBClient, Point, WritePrecision
     from influxdb_client.client.write_api import SYNCHRONOUS
-    print("done importing client")
 
     if 'influxdb_client' not in sys.modules:
-        print("you haven not imported influxdb_client succcessfully")
-    else:
-        print("looks like influxdb_client is available")
+        print("you have not imported influxdb_client succcessfully")
+        return
     
     try:
-        print("in try to make client")
         client = InfluxDBClient(url=args.influxdb2_url,
                                     token=args.influxdb2_token,
                                     org=args.influxdb2_org,
                                     debug=args.influxdb2_debug)
-        print("creating point")
+        
         # WritePrecision.S necessary since we are using the report's timestamp, which is epoch in seconds.
         point = Point(event).tag("source", "weatherflow-udp-listener").time(data['timestamp'], WritePrecision.S)
         
-        print("preparing to iterate over data keys")
         # add all keys / values to data point
         for key in data.keys():
             point.field(key, data[key])
             if args.influxdb2_debug:
                 print("added field %s : %s" % (key, data[key]))
        
-
         if args.influxdb2_debug or args.verbose:
-            print("publishing event %s to influxdb" % (event))
+            print ("publishing %s to influxdb v2 [%s:%s]: %s" % (event,args.influxdb_host, args.influxdb_port, point))
         
         # write to API
-        print("creating write api")
         write_api = client.write_api(write_options=SYNCHRONOUS)
-        print("write api created")
         write_api.write(bucket=args.influxdb2_bucket, record=point)
-        print("successfully wrote to InfluxDB")
 
     except Exception as e:
         print("Failed to connect to InfluxDB: %s" % e)
+        print("  Payload was: %s" % payload)
 
 #----------------
 
