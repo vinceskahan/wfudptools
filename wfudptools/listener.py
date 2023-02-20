@@ -165,13 +165,13 @@ def process_evt_precip(data,args):
         topic = "sensors/" + serial_number + "/" + topic
 
     if args.mqtt:
-        mqtt_publish(MQTT_HOST,topic,evt_precip)
+        mqtt_publish(MQTT_HOST, topic, evt_precip, args)
 
     if args.influxdb:
-        influxdb_publish(topic, evt_precip)
+        influxdb_publish(topic, evt_precip, args)
         
     if args.influxdb2:
-        influxdb2_publish(topic, evt_precip)
+        influxdb2_publish(topic, evt_precip, args)
         
     if args.verbose:
         print("finished publishing %s" % topic)
@@ -204,13 +204,13 @@ def process_evt_strike(data,args):
         topic = "sensors/" + serial_number + "/" + topic
 
     if args.mqtt:
-        mqtt_publish(MQTT_HOST,topic,evt_strike)
+        mqtt_publish(MQTT_HOST, topic, evt_strike, args)
 
     if args.influxdb:
-        influxdb_publish(topic, evt_strike)
+        influxdb_publish(topic, evt_strike, args)
         
     if args.influxdb2:
-        influxdb2_publish(topic, evt_strike)
+        influxdb2_publish(topic, evt_strike, args)
     
     if args.verbose:
         print("finished publishing %s" % topic)
@@ -243,13 +243,13 @@ def process_rapid_wind(data,args):
         topic = "sensors/" + serial_number + "/" + topic
 
     if args.mqtt:
-        mqtt_publish(MQTT_HOST,topic,rapid_wind)
+        mqtt_publish(MQTT_HOST, topic, rapid_wind, args)
 
     if args.influxdb:
-        influxdb_publish(topic, rapid_wind)
+        influxdb_publish(topic, rapid_wind, args)
             
     if args.influxdb2:
-        influxdb2_publish(topic, rapid_wind)
+        influxdb2_publish(topic, rapid_wind, args)
     
     if args.verbose:
         print("finished publishing %s" % topic)
@@ -291,13 +291,13 @@ def process_obs_air(data,args):
         topic = "sensors/" + serial_number + "/" + topic
 
     if args.mqtt:
-        mqtt_publish(MQTT_HOST,topic,obs_air)
+        mqtt_publish(MQTT_HOST, topic, obs_air, args)
 
     if args.influxdb:
-        influxdb_publish(topic, obs_air)
+        influxdb_publish(topic, obs_air, args)
         
     if args.influxdb2:
-        influxdb2_publish(topic, obs_air)
+        influxdb2_publish(topic, obs_air, args)
     
     if args.verbose:
         print("finished publishing %s" % topic)
@@ -362,13 +362,13 @@ def process_obs_st(data,args):
         topic = "sensors/" + serial_number + "/" + topic
 
     if args.mqtt:
-        mqtt_publish(MQTT_HOST,topic,obs_st)
+        mqtt_publish(MQTT_HOST, topic, obs_st, args)
 
     if args.influxdb:
-        influxdb_publish(topic, obs_st)
+        influxdb_publish(topic, obs_st, args)
         
     if args.influxdb2:
-        influxdb2_publish(topic, obs_st)
+        influxdb2_publish(topic, obs_st, args)
     
     if args.verbose:
         print("finished publishing %s" % topic)
@@ -421,13 +421,13 @@ def process_obs_sky(data,args):
         topic = "sensors/" + serial_number + "/" + topic
 
     if args.mqtt:
-        mqtt_publish(MQTT_HOST,topic,obs_sky)
+        mqtt_publish(MQTT_HOST, topic, obs_sky, args)
 
     if args.influxdb:
-        influxdb_publish(topic, obs_sky)
+        influxdb_publish(topic, obs_sky, args)
         
     if args.influxdb2:
-        influxdb2_publish(topic, obs_sky)
+        influxdb2_publish(topic, obs_sky, args)
     
     if args.verbose:
         print("finished publishing %s" % topic)
@@ -515,13 +515,13 @@ def process_device_status(data,args):
         topic = "sensors/" + serial_number + "/" + topic
 
     if args.mqtt:
-        mqtt_publish(MQTT_HOST,topic,device_status)
+        mqtt_publish(MQTT_HOST, topic, device_status, args)
 
     if args.influxdb:
-        influxdb_publish('device_status', device_status)
+        influxdb_publish('device_status', device_status, args)
         
     if args.influxdb2:
-        influxdb2_publish('device_status', device_status)
+        influxdb2_publish('device_status', device_status, args)
     
     if args.verbose:
         print("finished publishing %s" % topic)
@@ -573,13 +573,13 @@ def process_hub_status(data,args):
         topic = "sensors/" + serial_number + "/" + topic
 
     if args.mqtt:
-        mqtt_publish(MQTT_HOST,topic,hub_status)
+        mqtt_publish(MQTT_HOST, topic, hub_status, args)
 
     if args.influxdb:
-        influxdb_publish(topic, hub_status)     # careful here, might need to hub_status.pop("foo", None) for arrays
+        influxdb_publish(topic, hub_status, args)     # careful here, might need to hub_status.pop("foo", None) for arrays
         
     if args.influxdb2:
-        influxdb2_publish(topic, hub_status)     # careful here, might need to hub_status.pop("foo", None) for arrays
+        influxdb2_publish(topic, hub_status, args)     # careful here, might need to hub_status.pop("foo", None) for arrays
     
     if args.verbose:
         print("finished publishing %s" % topic)
@@ -588,7 +588,7 @@ def process_hub_status(data,args):
 
 #----------------
 
-def influxdb_publish(event, data):
+def influxdb_publish(event, data, args):
     from influxdb import InfluxDBClient
 
     try:
@@ -615,9 +615,7 @@ def influxdb_publish(event, data):
 
 #----------------
 
-def influxdb2_publish(event, data):
-    print("in influxdb2_publish")
-    print(f'args: {args}')
+def influxdb2_publish(event, data, args):
     # influxdb_client supports InfluxDB backends 1.8/2.0+ - v1.8 includes a v2 API layer.
     from influxdb_client import InfluxDBClient, Point, WritePrecision
     from influxdb_client.client.write_api import SYNCHRONOUS
