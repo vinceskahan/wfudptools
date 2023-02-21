@@ -231,6 +231,20 @@ The --syslog option will syslog any received JSON data that has an unknown or mi
 You almost certainly do 'not' want to use this option and also specify the --indent option, as the
 default JSON dumped will be a (long) one-liner suitable for syslog.
 
+##### Writing to an output directory
+
+Add the --raw --quiet --output DIRNAME to write the JSON to DIRNAME.
+
+By default, this will log all sensors and hubs detected.  You may limit the observations
+via the --limit <obstype> option.
+
+```
+# for serial number ST-000001, this will write to /var/tmp/ST-000001.rapid_wind
+@zero:~ wfudplistener --raw --quiet --output /var/tmp --limit rapid_wind
+
+# omitting the --limit switch will log all observations
+```
+
 ---
 
 <a name="#Publishing-to-MQTT"></a>

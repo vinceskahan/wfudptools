@@ -111,12 +111,17 @@ def debugUDP(data):
 def calcRapidWind(data):
     timestamp = getNow()
     data['ob'][0] = timestamp
-    data['ob'][1] += 0.1          # add 1 m/s each interval
+
+    data['ob'][1] += 0.1          # add 0.1 m/s each interval
+    if data['ob'][1]  > 15:       # reset to zero if the value gets too high
+        data['ob'][1] = 0
+    data['ob'][1] = round(data['ob'][1],1)
+
     data['ob'][2] += 9            # bump the direction slightly
     if data['ob'][2]  > 359:      # wraparound wind direction past north
         data['ob'][2] -= 360
-    if data['ob'][1]  > 15:       # reset to zero if the value gets too high
-        data['ob'][1] = 0
+    data['ob'][2] = round(data['ob'][2],1)
+
     broadcastUDP(data)
 
 def calcHubStatus(data,counter):
@@ -125,12 +130,23 @@ def calcHubStatus(data,counter):
     data['uptime'] = counter
     broadcastUDP(data)
 
+# ugly round() function here to limit to n.n precision
 def calcObsSt(data):
     timestamp = getNow()
     data['obs'][0][0] = timestamp
-    data['obs'][0][7] += 0.1      # warm up slowly
-    if data['obs'][0][7]  > 40:   # reset to a normal value
+
+                                    # temperature
+    data['obs'][0][7] += 0.1        # warm up slowly
+    if data['obs'][0][7]  > 40:     # reset to a normal value
         data['obs'][0][7] = 23
+    data['obs'][0][7] = round(data['obs'][0][7],1)
+
+                                    # wind gust
+    data['obs'][0][3] += 0.1        # add 0.1 m/s each interval
+    if data['obs'][0][3]  > 15:     # reset to zero if the value gets too high
+        data['obs'][0][3] = 0
+    data['obs'][0][3] = round(data['obs'][0][3],1)
+
     broadcastUDP(data)
 
 def calcDeviceStatus(data):
