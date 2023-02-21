@@ -2,14 +2,15 @@
 ### Changelog
 
 #### v5.x
-* Added ability to write directly to influxdb
 * python3 only, tested on 3.10 but earlier versions 'should' work ok
 * buildable via 'poetry'
 * installable via 'pip'
 * removed threading for supportability reasons
+* Added ability to write directly to influxdb v2
 
 #### v4.x
-* Added ability to write directly to influxdb (thanks to user clouserw via PR)
+* Added ability to write directly to influxdb
+* Threading cleanup
 
 #### v3.x
 * Multiple Air/Sky devices per hub is now supported.  See the -M option below
