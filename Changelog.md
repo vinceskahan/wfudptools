@@ -27,5 +27,5 @@ Packaging:
 * The listener now supports python3. All examples below have been updated accordingly.
 * Typical output has been significantly quieted down, with debugging output suppressed unless you use the --verbose flag
 
-### v1.x (2018-09-24)
-
+#### v1.x (2018-09-24)
+* original releases for python2
