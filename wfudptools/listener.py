@@ -656,7 +656,7 @@ def mqtt_publish(mqtt_host, mqtt_topic, data, args):
     import paho.mqtt.client  as mqtt
     import paho.mqtt.publish as publish
     if args.verbose:
-    print ("publishing to mqtt://%s/%s" % (mqtt_host, mqtt_topic))
+        print ("publishing to mqtt://%s/%s" % (mqtt_host, mqtt_topic))
     
     if args.no_pub:
         print ("    ", json.dumps(data,sort_keys=True));
