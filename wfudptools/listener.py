@@ -34,6 +34,8 @@ optional arguments:
   -q, --quiet           print only the JSON to stdout (requires -r)
   -d, --decoded         print decoded data to stdout
   -s, --syslog          syslog unexpected data received
+  -o, --output, --output DIRNAME
+                        write output files in --raw mode to DIRNAME
   -l LIMIT, --limit LIMIT
                         limit obs type(s) processed
   -x EXCLUDE, --exclude EXCLUDE
@@ -593,7 +595,9 @@ def mqtt_publish(mqtt_host,mqtt_topic,data):
     return
 
 #----------------
-
+#
+# if -q -r -o outdir this will save the observation
+# to a file $outdir/$serial_number.$type
 def print_raw(data,args):
         if args.raw:
             if args.indent:
@@ -601,7 +605,16 @@ def print_raw(data,args):
                 print (json.dumps(data,sort_keys=True,indent=2));
             else:
                 if args.quiet:
-                    print (json.dumps(data,sort_keys=True));
+                    if args.output:
+                        try:
+                            filename = args.output + "/" + data['serial_number'] + "." + data['type']
+                            f = open(filename,"w")
+                            f.write(json.dumps(data,sort_keys=True))
+                            f.close()
+                        except Exception as e:
+                            print(e)
+                    else:
+                        print (json.dumps(data,sort_keys=True));
                 else:
                     print ("    raw data: ", json.dumps(data,sort_keys=True));
             next
@@ -659,6 +672,7 @@ for --limit, possibilities are:
 
     parser.add_argument("-r", "--raw",     dest="raw",     action="store_true", help="print raw data to stddout")
     parser.add_argument("-q", "--quiet",   dest="quiet",   action="store_true", help="print only the JSON to stdout (requires -r)")
+    parser.add_argument("-o", "--output",  dest="output",  action="store",      help="write STDOUT to output dir (requires -r -q)")
     parser.add_argument("-d", "--decoded", dest="decoded", action="store_true", help="print decoded data to stdout")
     parser.add_argument("-s", "--syslog",  dest="syslog",  action="store_true", help="syslog unexpected data received")
     parser.add_argument("-l", "--limit",   dest="limit",   action="store",      help="limit obs type(s) processed")
