@@ -741,7 +741,9 @@ def report_it(data):
 
 
 def main():
-
+    # we set these globals away from defaults only if they are passed as arguments
+    global ADDRESS, MQTT_HOST, MQTT_TOPLEVEL_TOPIC, MQTT_CLIENT_ID, MQTT_PORT
+    
     import argparse
 
     # argument parsing is u.g.l.y it ain't got no alibi, it's ugly !
