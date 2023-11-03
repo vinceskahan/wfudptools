@@ -50,7 +50,7 @@ INITIAL_OBS_SKY = { "serial_number": "SK-00008453", "type":"obs_sky", "hub_sn": 
                     "obs":[[1493321340,9000,10,0.0,2.6,4.6,7.4,187,3.12,1,130,null,0,3]], "firmware_revision": 29 }
 
 INITIAL_OBS_ST = { "serial_number": "ST-00000512", "type": "obs_st", "hub_sn": "HB-00000001",
-                    "obs": [ [1588948614,0.18,0.22,0.27,144,6,1017.57,22.37,50.26,328,0.03,3,0.000000,0,0,0,2.410,1] ],
+                    "obs": [ [1588948614,0.18,0.22,0.27,144,6,1017.57,22.37,50.26,328,0.03,3,0.010000,1,0,0,2.410,1] ],
                     "firmware_revision": 129 }
 
 INITIAL_DEVICE_STATUS = { "serial_number": "AR-00004049", "type": "device_status", "hub_sn": "HB-00000001",
@@ -67,7 +67,8 @@ INITIAL_HUB_STATUS = { "serial_number":"HB-00000001", "type":"hub_status", "firm
 HUB_SN="HB-00000001"
 SKY_SN="SK-00000001"
 AIR_SN="AR-00000001"
-TEMPEST_SN="ST-00000001"
+#TEMPEST_SN="ST-00000001"
+TEMPEST_SN="ST-00006021"
 
 # initialize some python hashes
 evtPrecip    = INITIAL_EVT_PRECIP
@@ -111,12 +112,30 @@ def debugUDP(data):
 def calcRapidWind(data):
     timestamp = getNow()
     data['ob'][0] = timestamp
-    data['ob'][1] += 0.1          # add 1 m/s each interval
+
+    data['ob'][1] += 0.1          # add 0.1 m/s each interval
+    if data['ob'][1]  > 15:       # reset to zero if the value gets too high
+        data['ob'][1] = 0
+    data['ob'][1] = round(data['ob'][1],1)
+
     data['ob'][2] += 9            # bump the direction slightly
     if data['ob'][2]  > 359:      # wraparound wind direction past north
         data['ob'][2] -= 360
-    if data['ob'][1]  > 15:       # reset to zero if the value gets too high
-        data['ob'][1] = 0
+    data['ob'][2] = round(data['ob'][2],1)
+
+    broadcastUDP(data)
+
+def calcEvtStrike(data):
+    timestamp = getNow()
+    data['evt'][0] = timestamp
+    data['evt'][1] = 10
+    data['evt'][2] = 1234
+    broadcastUDP(data)
+    print("strike at ",timestamp)
+
+def calcEvtPrecip(data):
+    timestamp = getNow()
+    data['evt'][0] = timestamp
     broadcastUDP(data)
 
 def calcHubStatus(data,counter):
@@ -125,12 +144,24 @@ def calcHubStatus(data,counter):
     data['uptime'] = counter
     broadcastUDP(data)
 
+# ugly round() function here to limit to n.n precision
 def calcObsSt(data):
     timestamp = getNow()
     data['obs'][0][0] = timestamp
-    data['obs'][0][7] += 0.1      # warm up slowly
-    if data['obs'][0][7]  > 40:   # reset to a normal value
+
+                                    # temperature
+    data['obs'][0][7] += 0.1        # warm up slowly
+    if data['obs'][0][7]  > 40:     # reset to a normal value
         data['obs'][0][7] = 23
+    data['obs'][0][7] = round(data['obs'][0][7],1)
+
+                                    # wind gust
+    data['obs'][0][3] += 0.1        # add 0.1 m/s each interval
+    if data['obs'][0][3]  > 15:     # reset to zero if the value gets too high
+        data['obs'][0][3] = 0
+    data['obs'][0][3] = round(data['obs'][0][3],1)
+    print("obs at %s outTemp = %s",(timestamp, data['obs'][0][7]))
+
     broadcastUDP(data)
 
 def calcDeviceStatus(data):
@@ -172,6 +203,14 @@ def main():
         # device_status is every 60 secs
         if (counter % 60) == 5:
             calcDeviceStatus(deviceStatus)
+
+        # throw a strike occasionally
+        if (counter % 600) == 1:
+            calcEvtStrike(evtStrike)
+
+        # throw a precip event occasionally
+        if (counter % 60) == 4:
+            calcEvtPrecip(evtPrecip)
 
         counter += 1
         time.sleep(1)
