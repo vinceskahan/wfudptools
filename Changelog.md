@@ -9,6 +9,8 @@ Functionality:
 * Added ability to write directly to influxdb v2
 * Added a --quiet option to output just the formatted data
 * removed threading for supportability reasons
+* do a little more simulating in the simulator
+* use my station id by default in the simulator
 
 Packaging:
 * python3 only, tested on 3.10 but earlier versions 'should' work ok
