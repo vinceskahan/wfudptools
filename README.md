@@ -6,7 +6,7 @@ These permit you to listen to UDP broadcasts from your Hub and:
  * print the received UDP broadcasts to stdout
  * print the decoded broadcasts in a more human-friendly form
  * publish derived topics to MQTT
- * publish derived topics to influxdb
+ * publish derived topics to influxdb (v1.x and v2.x)
  * support any combination of Air/Sky/Tempest
  * support multiple instances of Air/Sky/Tempest at your site
 
@@ -97,6 +97,16 @@ optional arguments:
                         InfluxDb password
   --influxdb_db INFLUXDB_DB
                         InfluxDb database name
+  --influxdb2           publish to InfluxDB v2
+  --influxdb2_url INFLUXDB2_URL
+                        InfluxDB v2 HTTP API root URL
+  --influxdb2_org INFLUXDB2_ORG
+                        InfluxDB v2 Organization
+  --influxdb2_bucket INFLUXDB2_BUCKET
+                        InfluxDB v2 Bucket
+  --influxdb2_token INFLUXDB2_TOKEN
+                        InfluxDB v2 Token
+  --influxdb2_debug     Debug InfluxDB v2 publisher
   -v, --verbose         verbose output to watch the threads
 
 for --limit, possibilities are:
@@ -231,6 +241,20 @@ The --syslog option will syslog any received JSON data that has an unknown or mi
 You almost certainly do 'not' want to use this option and also specify the --indent option, as the
 default JSON dumped will be a (long) one-liner suitable for syslog.
 
+##### Writing to an output directory
+
+Add the --raw --quiet --output DIRNAME to write the JSON to DIRNAME.
+
+By default, this will log all sensors and hubs detected.  You may limit the observations
+via the --limit <obstype> option.
+
+```
+# for serial number ST-000001, this will write to /var/tmp/ST-000001.rapid_wind
+@zero:~ wfudplistener --raw --quiet --output /var/tmp --limit rapid_wind
+
+# omitting the --limit switch will log all observations
+```
+
 ---
 
 <a name="#Publishing-to-MQTT"></a>
@@ -321,7 +345,7 @@ It is also possible to publish directly to a influxdb database
 
 ### Example usage:
 
-This will print to a remote host 'influxdb' using a specified port and database, and also enable the multisensor syntax for more searchable generic topic names in the database.  This particular example requires no influxdb username/password, so those options have been omitted.
+This will print to InfluxDB v1.x on a remote host 'influxdb' using a specified port and database, and also enable the multisensor syntax for more searchable generic topic names in the database.  This particular example requires no influxdb username/password, so those options have been omitted.
 
 
 ```
@@ -330,6 +354,12 @@ This will print to a remote host 'influxdb' using a specified port and database,
 
 nohup wfudplistener --influxdb --influxdb_host=influxdb --influxdb_port=8086  --influxdb_db=testdb -M &
 
+```
+
+An equivalent example for InfluxDB v2.x:
+
+```
+nohup wfudplistener --influxdb --influxdb2_url="http://influxdb:8086"  --influxdb2_org=testorg --influxdb2_token=longsecret --influxdb2_bucket=weather -M &
 ```
 
 Initially it might make sense to add the -n (no_pub) flag to see is being published, to aid in you writing queries or grafana dashboards versus your influxdb data.  Remember, however, that the -n flag writes to stdout, so you'd want to run the command in the foreground.

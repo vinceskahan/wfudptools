@@ -68,7 +68,7 @@ HUB_SN="HB-00000001"
 SKY_SN="SK-00000001"
 AIR_SN="AR-00000001"
 #TEMPEST_SN="ST-00000001"
-TEMPEST_SN="ST-00006021"
+TEMPEST_SN="ST-00006021"    # force it to my data for WF PiConsole testing
 
 # initialize some python hashes
 evtPrecip    = INITIAL_EVT_PRECIP

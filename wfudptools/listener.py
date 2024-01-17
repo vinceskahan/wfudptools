@@ -34,6 +34,8 @@ optional arguments:
   -q, --quiet           print only the JSON to stdout (requires -r)
   -d, --decoded         print decoded data to stdout
   -s, --syslog          syslog unexpected data received
+  -o, --output, --output DIRNAME
+                        write output files in --raw mode to DIRNAME
   -l LIMIT, --limit LIMIT
                         limit obs type(s) processed
   -x EXCLUDE, --exclude EXCLUDE
@@ -59,6 +61,16 @@ optional arguments:
                         InfluxDb password
   --influxdb_db INFLUXDB_DB
                         InfluxDb database name
+  --influxdb2           publish to InfluxDB v2
+  --influxdb2_url INFLUXDB2_URL
+                        InfluxDB v2 HTTP API root URL
+  --influxdb2_org INFLUXDB2_ORG
+                        InfluxDB v2 Organization
+  --influxdb2_bucket INFLUXDB2_BUCKET
+                        InfluxDB v2 Bucket
+  --influxdb2_token INFLUXDB2_TOKEN
+                        InfluxDB v2 Token
+  --influxdb2_debug     Debug InfluxDB v2 publisher
   --mqtt_user MQTT_USER
                         MQTT username (if needed)
   --mqtt_pass MQTT_PASS
@@ -155,10 +167,16 @@ def process_evt_precip(data,args):
         topic = "sensors/" + serial_number + "/" + topic
 
     if args.mqtt:
-        mqtt_publish(MQTT_HOST,topic,evt_precip)
+        mqtt_publish(MQTT_HOST, topic, evt_precip, args)
 
     if args.influxdb:
-        influxdb_publish(topic, evt_precip)
+        influxdb_publish(topic, evt_precip, args)
+
+    if args.influxdb2:
+        influxdb2_publish(topic, evt_precip, args)
+
+    if args.verbose:
+        print("finished publishing %s" % topic)
 
     return data
 
@@ -188,10 +206,16 @@ def process_evt_strike(data,args):
         topic = "sensors/" + serial_number + "/" + topic
 
     if args.mqtt:
-        mqtt_publish(MQTT_HOST,topic,evt_strike)
+        mqtt_publish(MQTT_HOST, topic, evt_strike, args)
 
     if args.influxdb:
-        influxdb_publish(topic, evt_strike)
+        influxdb_publish(topic, evt_strike, args)
+
+    if args.influxdb2:
+        influxdb2_publish(topic, evt_strike, args)
+
+    if args.verbose:
+        print("finished publishing %s" % topic)
 
     return data
 
@@ -221,10 +245,16 @@ def process_rapid_wind(data,args):
         topic = "sensors/" + serial_number + "/" + topic
 
     if args.mqtt:
-        mqtt_publish(MQTT_HOST,topic,rapid_wind)
+        mqtt_publish(MQTT_HOST, topic, rapid_wind, args)
 
     if args.influxdb:
-        influxdb_publish(topic, rapid_wind)
+        influxdb_publish(topic, rapid_wind, args)
+
+    if args.influxdb2:
+        influxdb2_publish(topic, rapid_wind, args)
+
+    if args.verbose:
+        print("finished publishing %s" % topic)
 
     return data
 
@@ -263,10 +293,16 @@ def process_obs_air(data,args):
         topic = "sensors/" + serial_number + "/" + topic
 
     if args.mqtt:
-        mqtt_publish(MQTT_HOST,topic,obs_air)
+        mqtt_publish(MQTT_HOST, topic, obs_air, args)
 
     if args.influxdb:
-        influxdb_publish(topic, obs_air)
+        influxdb_publish(topic, obs_air, args)
+
+    if args.influxdb2:
+        influxdb2_publish(topic, obs_air, args)
+
+    if args.verbose:
+        print("finished publishing %s" % topic)
 
     return data
 
@@ -328,10 +364,16 @@ def process_obs_st(data,args):
         topic = "sensors/" + serial_number + "/" + topic
 
     if args.mqtt:
-        mqtt_publish(MQTT_HOST,topic,obs_st)
+        mqtt_publish(MQTT_HOST, topic, obs_st, args)
 
     if args.influxdb:
-        influxdb_publish(topic, obs_st)
+        influxdb_publish(topic, obs_st, args)
+
+    if args.influxdb2:
+        influxdb2_publish(topic, obs_st, args)
+
+    if args.verbose:
+        print("finished publishing %s" % topic)
 
     return data
 
@@ -381,10 +423,16 @@ def process_obs_sky(data,args):
         topic = "sensors/" + serial_number + "/" + topic
 
     if args.mqtt:
-        mqtt_publish(MQTT_HOST,topic,obs_sky)
+        mqtt_publish(MQTT_HOST, topic, obs_sky, args)
 
     if args.influxdb:
-        influxdb_publish(topic, obs_sky)
+        influxdb_publish(topic, obs_sky, args)
+
+    if args.influxdb2:
+        influxdb2_publish(topic, obs_sky, args)
+
+    if args.verbose:
+        print("finished publishing %s" % topic)
 
     return data
 
@@ -469,10 +517,16 @@ def process_device_status(data,args):
         topic = "sensors/" + serial_number + "/" + topic
 
     if args.mqtt:
-        mqtt_publish(MQTT_HOST,topic,device_status)
+        mqtt_publish(MQTT_HOST, topic, device_status, args)
 
     if args.influxdb:
-        influxdb_publish('device_status', device_status)
+        influxdb_publish('device_status', device_status, args)
+
+    if args.influxdb2:
+        influxdb2_publish('device_status', device_status, args)
+
+    if args.verbose:
+        print("finished publishing %s" % topic)
 
     return data
 
@@ -521,16 +575,22 @@ def process_hub_status(data,args):
         topic = "sensors/" + serial_number + "/" + topic
 
     if args.mqtt:
-        mqtt_publish(MQTT_HOST,topic,hub_status)
+        mqtt_publish(MQTT_HOST, topic, hub_status, args)
 
     if args.influxdb:
-        influxdb_publish(topic, hub_status)     # careful here, might need to hub_status.pop("foo", None) for arrays
+        influxdb_publish(topic, hub_status, args)     # careful here, might need to hub_status.pop("foo", None) for arrays
+
+    if args.influxdb2:
+        influxdb2_publish(topic, hub_status, args)     # careful here, might need to hub_status.pop("foo", None) for arrays
+
+    if args.verbose:
+        print("finished publishing %s" % topic)
 
     return data
 
 #----------------
 
-def influxdb_publish(event, data):
+def influxdb_publish(event, data, args):
     from influxdb import InfluxDBClient
 
     try:
@@ -557,10 +617,49 @@ def influxdb_publish(event, data):
 
 #----------------
 
-def mqtt_publish(mqtt_host,mqtt_topic,data):
+def influxdb2_publish(event, data, args):
+    # influxdb_client supports InfluxDB backends 1.8/2.0+ - v1.8 includes a v2 API layer.
+    from influxdb_client import InfluxDBClient, Point, WritePrecision
+    from influxdb_client.client.write_api import SYNCHRONOUS
+
+    if 'influxdb_client' not in sys.modules:
+        print("you have not imported influxdb_client succcessfully")
+        return
+
+    try:
+        client = InfluxDBClient(url=args.influxdb2_url,
+                                    token=args.influxdb2_token,
+                                    org=args.influxdb2_org,
+                                    debug=args.influxdb2_debug)
+
+        # WritePrecision.S necessary since we are using the report's timestamp, which is epoch in seconds.
+        point = Point(event).tag("source", "weatherflow-udp-listener").time(data['timestamp'], WritePrecision.S)
+
+        # add all keys / values to data point
+        for key in data.keys():
+            point.field(key, data[key])
+            if args.influxdb2_debug:
+                print("added field %s : %s" % (key, data[key]))
+
+        if args.influxdb2_debug or args.verbose:
+            print ("publishing %s to influxdb v2 [%s:%s]: %s" % (event,args.influxdb_host, args.influxdb_port, point))
+
+        # write to API
+        write_api = client.write_api(write_options=SYNCHRONOUS)
+        write_api.write(bucket=args.influxdb2_bucket, record=point)
+
+    except Exception as e:
+        print("Failed to connect to InfluxDB: %s" % e)
+        print("  Payload was: %s" % payload)
+
+#----------------
+
+def mqtt_publish(mqtt_host, mqtt_topic, data, args):
     import paho.mqtt.client  as mqtt
     import paho.mqtt.publish as publish
-    print ("publishing to mqtt://%s/%s" % (mqtt_host, mqtt_topic))
+    if args.verbose:
+        print ("publishing to mqtt://%s/%s" % (mqtt_host, mqtt_topic))
+
     if args.no_pub:
         print ("    ", json.dumps(data,sort_keys=True));
 
@@ -593,7 +692,9 @@ def mqtt_publish(mqtt_host,mqtt_topic,data):
     return
 
 #----------------
-
+#
+# if -q -r -o outdir this will save the observation
+# to a file $outdir/$serial_number.$type
 def print_raw(data,args):
         if args.raw:
             if args.indent:
@@ -601,7 +702,16 @@ def print_raw(data,args):
                 print (json.dumps(data,sort_keys=True,indent=2));
             else:
                 if args.quiet:
-                    print (json.dumps(data,sort_keys=True));
+                    if args.output:
+                        try:
+                            filename = args.output + "/" + data['serial_number'] + "." + data['type']
+                            f = open(filename,"w")
+                            f.write(json.dumps(data,sort_keys=True))
+                            f.close()
+                        except Exception as e:
+                            print(e)
+                    else:
+                        print (json.dumps(data,sort_keys=True));
                 else:
                     print ("    raw data: ", json.dumps(data,sort_keys=True));
             next
@@ -644,6 +754,8 @@ def report_it(data):
 
 
 def main():
+    # we set these globals away from defaults only if they are passed as arguments
+    global ADDRESS, MQTT_HOST, MQTT_TOPLEVEL_TOPIC, MQTT_CLIENT_ID, MQTT_PORT
 
     import argparse
 
@@ -659,6 +771,7 @@ for --limit, possibilities are:
 
     parser.add_argument("-r", "--raw",     dest="raw",     action="store_true", help="print raw data to stddout")
     parser.add_argument("-q", "--quiet",   dest="quiet",   action="store_true", help="print only the JSON to stdout (requires -r)")
+    parser.add_argument("-o", "--output",  dest="output",  action="store",      help="write STDOUT to output dir (requires -r -q)")
     parser.add_argument("-d", "--decoded", dest="decoded", action="store_true", help="print decoded data to stdout")
     parser.add_argument("-s", "--syslog",  dest="syslog",  action="store_true", help="syslog unexpected data received")
     parser.add_argument("-l", "--limit",   dest="limit",   action="store",      help="limit obs type(s) processed")
@@ -682,9 +795,16 @@ for --limit, possibilities are:
     parser.add_argument("--influxdb_pass", dest="influxdb_pass", action="store",                                      help="InfluxDB password")
     parser.add_argument("--influxdb_db",   dest="influxdb_db",   action="store",      default="smartweather",         help="InfluxDB database name")
 
+    parser.add_argument("--influxdb2",        dest="influxdb2",    action="store_true", help="publish to InfluxDB v2")
+    parser.add_argument("--influxdb2_url",    dest="influxdb2_url",    action="store", help="InfluxDB v2 HTTP API root URL", default="http://localhost:8086/")
+    parser.add_argument("--influxdb2_org",    dest="influxdb2_org", action="store", help="InfluxDB v2 Organization")
+    parser.add_argument("--influxdb2_bucket", dest="influxdb2_bucket", action="store", help="InfluxDB v2 Bucket")
+    parser.add_argument("--influxdb2_token", dest="influxdb2_token", action="store", help="InfluxDB v2 Token")
+    parser.add_argument("--influxdb2_debug", dest="influxdb2_debug", action="store_true", help="Debug InfluxDB v2 publisher")
+
     parser.add_argument("--mqtt_user", dest="mqtt_user", action="store", help="MQTT username (if needed)")
     parser.add_argument("--mqtt_pass", dest="mqtt_pass", action="store", help="MQTT password (if MQTT_USER has a password)")
- 
+
     parser.add_argument("-v", "--verbose", dest="verbose", action="store_true", help="verbose mode - show threads")
 
     args = parser.parse_args()
@@ -695,10 +815,10 @@ for --limit, possibilities are:
         print ()
         sys.exit(1)
 
-    if (not args.mqtt) and (not args.decoded) and (not args.raw) and (not args.influxdb):
+    if (not args.mqtt) and (not args.decoded) and (not args.raw) and (not args.influxdb) and (not args.influxdb2):
         print ("\n#")
         print ("# exiting - must specify at least one option")
-        print ("#           --raw, --decoded, --mqtt, --influxdb")
+        print ("#           --raw, --decoded, --mqtt, --influxdb, --influxdb2")
         print ("#\n")
         parser.print_usage()
         print ()

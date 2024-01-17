@@ -1,0 +1,8 @@
+
+This project uses a simplified git-flow for branching.
+
+Nothing too crazy, but in general I'd like to use feature branches
+and merge/test off 'develop' and release off 'main'.
+
+If you supply any PR (thanks!) please do them relative to 'develop'.
+
